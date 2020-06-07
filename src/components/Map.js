@@ -1,75 +1,88 @@
 import React from 'react';
 import mapboxgl from 'mapbox-gl';
+// import ReactMapGL from 'react-map-gl'
 
 mapboxgl.accessToken = `pk.eyJ1Ijoic3dvbGZzb24iLCJhIjoiY2p2cTNmNjJqMGplaDQ5bW85eGI0a3pvcyJ9.UmldkLqn5ujgok-SwUf2Lg`;
 
-class Map extends React.Component {
+export default class Map extends React.Component {
 	constructor(props) {
-        super(props);
-        console.log('PROPS', props)
+		super(props);
+		console.log('PROPS', props);
+		// this.state = {
+		// 	viewport: {
+		// 		width: '100vw',
+		// 		height: '100vh',
+		// 		latitude: 42.430472,
+		// 		longitude: -123.334102,
+		// 		zoom: 14
+		// 	},
+		// 	userLocation: {}
+		// };
 		this.state = {
-            lng: 0,
-            lat: 0,
-			zoom: 14,
+			center: [],
+			lng: 69,
+			lat: -69,
+			zoom: 14
 		};
+
+
+		navigator.geolocation.getCurrentPosition(
+			({ coords: { latitude, longitude } }) => {
+				this.setState({
+					lng: longitude,
+					lat: latitude
+				});
+			}
+		);
+		// if (navigator.geolocation) {
+		// 	navigator.geolocation.getCurrentPosition(
+		// 		({ coords: { latitude, longitude } }) => {
+		// 			this.setState({
+		// 				lng: longitude,
+		// 				lat: latitude
+		// 			});
+		// 			console.log('load from current location');
+		// 		}
+		// 	);
+		// } else {
+		// 	console.log('load from hardcoded location');
+		// 	this.setState({
+		// 		lng: 115.1304015,
+		// 		lat: -8.6539913
+		// 	});
+		// 	console.log('ELSE BLOCK', this.state);
+		// }
+		console.log(this.state);
 	}
-
 	componentDidMount() {
-        // const currentLoc = {}
-        // if (navigator.geolocation) {
-        //     navigator.geolocation.getCurrentPosition(
-        //         ({ coords: { latitude, longitude } }) => {
-        //             console.log('Before SET STATE', this.state)
-        //             this.setState({
-        //                 lng: longitude,
-        //                 lat: latitude,
-        //             })
-        //             console.log('AFTER SET STATE', this.state)
-        //             currentLoc.lng = this.state.lng
-        //             currentLoc.lat = this.state.lat;
-        //             console.log('load from current location', currentLoc);
-        //         }
-        //     );
-        // } else {
-        //     console.log('load from hardcoded location');
-        //     this.setState({
-        //         lng: 115.1304015,
-        //         lat: -8.6539913,
-        //     })
-        //     console.log('ELSE BLOCK', this.state)
-        // }
-        // this.setState({
-        //     lng: currentLoc.lng,
-        //     lat: currentLoc.lat,
-        // })
-        // console.log(this.state, 'BEFORE MAP')
+		const map = new mapboxgl.Map({
+			container: this.mapContainer,
+			style: 'mapbox://styles/mapbox/streets-v11',
+			center: [this.state.lng, this.state.lat],
+			zoom: this.state.zoom
+		});
 
-        const map = new mapboxgl.Map({
-            container: this.mapContainer,
-            style: 'mapbox://styles/mapbox/streets-v11',
-            center: [this.state.lng, this.state.lat],
-            zoom: this.state.zoom
-        });
+		map.on('move', () => {
+			this.setState({
+				lng: map.getCenter().lng.toFixed(4),
+				lat: map.getCenter().lat.toFixed(4),
+				zoom: map.getZoom().toFixed(2)
+			});
+		});
 
-        map.on('move', () => {
-            this.setState({
-                lng: map.getCenter().lng.toFixed(4),
-                lat: map.getCenter().lat.toFixed(4),
-                zoom: map.getZoom().toFixed(2)
-            });
-        });
-
-        const geolocate = new mapboxgl.GeolocateControl({
-            positionOptions: {
-                enableHighAccuracy: true
-            },
-            trackUserLocation: true
-        });
+		const geolocate = new mapboxgl.GeolocateControl({
+			positionOptions: {
+				enableHighAccuracy: true
+			},
+			trackUserLocation: true
+		});
 
         map.addControl(geolocate);
+        console.log('END OF COMPDIDMNT ', this.state);
 	}
 
 	render() {
+		console.log('RENDER ', this.state);
 		return (
 			<div>
 				<div className="sidebarStyle">
@@ -83,8 +96,6 @@ class Map extends React.Component {
 		);
 	}
 }
-
-export default Map;
 
 // const Map = () => {
 //     const initMapbox = (currentLocation) => {
